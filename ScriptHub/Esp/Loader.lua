@@ -1,5 +1,5 @@
 -- [[ FINAL LOADER ]] --
-local PlayerManager = loadstring(game:HttpGet("LINK_PLAYER_MANAGER"))()
+local PlayerManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/HaZcK/LoadstringHub/refs/heads/main/ScriptHub/Esp/Function.lua"))()
 local GuiModule = loadstring(game:HttpGet("https://raw.githubusercontent.com/HaZcK/LoadstringHub/refs/heads/main/ScriptHub/Esp/Gui.lua"))()
 local FuncModule = loadstring(game:HttpGet("https://raw.githubusercontent.com/HaZcK/LoadstringHub/refs/heads/main/ScriptHub/Esp/PlayerManager.lua"))()
 
