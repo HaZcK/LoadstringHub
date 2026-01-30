@@ -1,94 +1,63 @@
---[[
-    ESP Interface Framework
-    Built with a "Red-Alert" theme
-    Custom orange outlines for that tactical look
---]]
+-- [[ GUI.LUA - THE INTERFACE ]] --
+local Gui = {}
 
-local ESP_Gui = {}
-
--- Services
-local CoreGui = game:GetService("CoreGui")
-local TweenService = game:GetService("TweenService")
-
-function ESP_Gui:Init()
-    -- Create the main container, protecting it from being easily seen in scripts
-    local MainRoot = Instance.new("ScreenGui")
-    MainRoot.Name = "Internal_Scanner_v1"
-    MainRoot.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+function Gui:Create()
+    local sg = Instance.new("ScreenGui")
+    sg.Name = "Scanner_UI"
+    sg.ResetOnSpawn = false
+    sg.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     
-    -- Try to parent to CoreGui so it doesn't reset on death, 
-    -- fallback to PlayerGui if we don't have permissions
-    local success, err = pcall(function()
-        MainRoot.Parent = CoreGui
-    end)
-    if not success then
-        MainRoot.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
-    end
+    -- Frame Utama (Merah/Orange)
+    local frame = Instance.new("Frame")
+    frame.Name = "Main"
+    frame.Size = UDim2.new(0, 300, 0, 400)
+    frame.Position = UDim2.new(0.5, -150, 0.5, -200)
+    frame.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
+    frame.Active = true
+    frame.Draggable = true -- Biar bisa digeser
+    frame.Parent = sg
+    
+    local stroke = Instance.new("UIStroke")
+    stroke.Color = Color3.fromRGB(255, 120, 0)
+    stroke.Thickness = 3
+    stroke.Parent = frame
+    
+    -- Tombol Close (Pojok Kanan Atas)
+    local close = Instance.new("TextButton")
+    close.Name = "CloseBtn"
+    close.Size = UDim2.new(0, 30, 0, 30)
+    close.Position = UDim2.new(1, -35, 0, 5)
+    close.Text = "X"
+    close.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+    close.TextColor3 = Color3.new(1,1,1)
+    close.Parent = frame
 
-    -- Main Container Frame
-    local MenuFrame = Instance.new("Frame")
-    MenuFrame.Name = "MainContainer"
-    MenuFrame.Size = UDim2.new(0, 220, 0, 300)
-    MenuFrame.Position = UDim2.new(0.1, 0, 0.4, 0) -- Nice side position
-    MenuFrame.BackgroundColor3 = Color3.fromRGB(150, 0, 0) -- Solid Dark Red
-    MenuFrame.BorderSizePixel = 0
-    MenuFrame.Active = true
-    MenuFrame.Draggable = true -- Old school but handy
-    MenuFrame.Parent = MainRoot
+    -- Tombol Select All
+    local selAll = Instance.new("TextButton")
+    selAll.Name = "SelectAll"
+    selAll.Size = UDim2.new(0.9, 0, 0, 30)
+    selAll.Position = UDim2.new(0.05, 0, 0, 40)
+    selAll.Text = "SELECT ALL"
+    selAll.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+    selAll.TextColor3 = Color3.fromRGB(255, 120, 0)
+    selAll.Parent = frame
 
-    -- The "Orange Outline" you asked for
-    local Outline = Instance.new("UIStroke")
-    Outline.Name = "MenuBorder"
-    Outline.Color = Color3.fromRGB(255, 100, 0) -- Vibrant Orange
-    Outline.Thickness = 2.5
-    Outline.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-    Outline.Parent = MenuFrame
+    -- Daftar Player (Scrolling Frame)
+    local list = Instance.new("ScrollingFrame")
+    list.Name = "PlayerList"
+    list.Size = UDim2.new(0.9, 0, 0.7, 0)
+    list.Position = UDim2.new(0.05, 0, 0.22, 0)
+    list.BackgroundTransparency = 1
+    list.CanvasSize = UDim2.new(0, 0, 5, 0)
+    list.ScrollBarThickness = 3
+    list.Parent = frame
 
-    -- Rounding the edges just a bit
-    local Corner = Instance.new("UICorner")
-    Corner.CornerRadius = UDim.new(0, 6)
-    Corner.Parent = MenuFrame
+    -- UI List Layout biar otomatis rapi
+    local layout = Instance.new("UIListLayout")
+    layout.Padding = UDim.new(0, 5)
+    layout.Parent = list
 
-    -- Title Section
-    local Header = Instance.new("TextLabel")
-    Header.Name = "HeaderTitle"
-    Header.Size = UDim2.new(1, 0, 0, 35)
-    Header.BackgroundColor3 = Color3.fromRGB(180, 0, 0) -- Lighter Red for Header
-    Header.Text = "  ESP SCANNER"
-    Header.TextColor3 = Color3.new(1, 1, 1)
-    Header.TextXAlignment = Enum.TextXAlignment.Left
-    Header.Font = Enum.Font.SourceSansBold
-    Header.TextSize = 18
-    Header.Parent = MenuFrame
-
-    -- Add a small orange separator under header
-    local Divider = Instance.new("Frame")
-    Divider.Size = UDim2.new(1, 0, 0, 2)
-    Divider.Position = UDim2.new(0, 0, 0, 35)
-    Divider.BackgroundColor3 = Color3.fromRGB(255, 100, 0)
-    Divider.BorderSizePixel = 0
-    Divider.Parent = MenuFrame
-
-    -- Body Content Container (Where buttons will go)
-    local Content = Instance.new("ScrollingFrame")
-    Content.Name = "ItemsList"
-    Content.Size = UDim2.new(1, -10, 1, -45)
-    Content.Position = UDim2.new(0, 5, 0, 40)
-    Content.BackgroundTransparency = 1
-    Content.ScrollBarThickness = 2
-    Content.CanvasSize = UDim2.new(0, 0, 2, 0) -- Scrollable area
-    Content.Parent = MenuFrame
-
-    print("[SYSTEM] ESP GUI initialized successfully.")
-    return MenuFrame
+    return sg, frame, list, selAll, close
 end
 
--- Let's boot it up
-local myMenu = ESP_Gui:Init()
-
--- Simple toggle visibility (Standard human-style function)
-local function toggleGui(state)
-    myMenu.Visible = state
-end
-
-return ESP_Gui
+return Gui
