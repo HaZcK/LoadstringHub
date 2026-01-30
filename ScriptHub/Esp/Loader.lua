@@ -1,7 +1,7 @@
 -- [[ FINAL LOADER ]] --
 local PlayerManager = loadstring(game:HttpGet("LINK_PLAYER_MANAGER"))()
 local GuiModule = loadstring(game:HttpGet("https://raw.githubusercontent.com/HaZcK/LoadstringHub/refs/heads/main/ScriptHub/Esp/Gui.lua"))()
-local FuncModule = loadstring(game:HttpGet("LINK_FUNCTION_LUA"))()
+local FuncModule = loadstring(game:HttpGet("https://raw.githubusercontent.com/HaZcK/LoadstringHub/refs/heads/main/ScriptHub/Esp/PlayerManager.lua"))()
 
 local sg, mainFrame, playerList, selAllBtn, closeBtn = GuiModule:Create()
 sg.Parent = game:GetService("CoreGui") -- Biar aman
