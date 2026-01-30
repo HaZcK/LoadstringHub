@@ -5,10 +5,10 @@
 
 -- 1. Load PlayerManager (Logika ESP)
 -- (Kalau PlayerManager-mu sudah di GitHub, pakai loadstring juga)
-local PlayerManager = loadstring(game:HttpGet("URL_PLAYER_MANAGER_KAMU_DI_SINI"))()
+local PlayerManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/HaZcK/LoadstringHub/refs/heads/main/ScriptHub/Esp/PlayerManager.lua"))()
 
 -- 2. Load GUI dari GitHub kamu
-local ESP_Gui_Script = loadstring(game:HttpGet("https://raw.githubusercontent.com/HaZcK/LoadstringHub/refs/heads/main/ScriptHub/Esp/Gui.lua", true))()
+local ESP_Gui_Script = loadstring(game:HttpGet("https://raw.githubusercontent.com/HaZcK/LoadstringHub/refs/heads/main/ScriptHub/Esp/Gui.lua"))()
 
 -- 3. Jalankan pemindaian player real-time
 PlayerManager:Start()
