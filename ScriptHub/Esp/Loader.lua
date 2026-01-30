@@ -1,48 +1,48 @@
---[[
-    UNIVERSAL LOADER
-    Tugas: Manggil GUI dari GitHub & Connect ke PlayerManager
---]]
+-- [[ FINAL LOADER ]] --
+local PlayerManager = loadstring(game:HttpGet("LINK_PLAYER_MANAGER"))()
+local GuiModule = loadstring(game:HttpGet("LINK_GUI_LUA"))()
+local FuncModule = loadstring(game:HttpGet("LINK_FUNCTION_LUA"))()
 
--- 1. Load PlayerManager (Logika ESP)
--- (Kalau PlayerManager-mu sudah di GitHub, pakai loadstring juga)
-local PlayerManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/HaZcK/LoadstringHub/refs/heads/main/ScriptHub/Esp/PlayerManager.lua"))()
+local sg, mainFrame, playerList, selAllBtn, closeBtn = GuiModule:Create()
+sg.Parent = game:GetService("CoreGui") -- Biar aman
 
--- 2. Load GUI dari GitHub kamu
-local ESP_Gui_Script = loadstring(game:HttpGet("https://raw.githubusercontent.com/HaZcK/LoadstringHub/refs/heads/main/ScriptHub/Esp/Gui.lua"))()
+-- Jalankan List Pertama Kali
+FuncModule:RefreshPlayerList(playerList, PlayerManager)
 
--- 3. Jalankan pemindaian player real-time
-PlayerManager:Start()
-
--- 4. Menghubungkan Tombol di GUI ke Fungsi Manager
--- Kita asumsikan di dalam Gui.lua kamu ada tombol bernama 'ToggleBtn'
--- Kita pakai pcall supaya kalau tombolnya nggak ketemu, script nggak mati total.
-
-local success, err = pcall(function()
-    -- Cek apakah GUI mengembalikan objek/table
-    local MainFrame = ESP_Gui_Script.MainFrame -- Sesuaikan dengan nama Frame di Gui.lua kamu
-    local ToggleBtn = MainFrame:FindFirstChild("ToggleESP") -- Misal nama tombolnya 'ToggleESP'
-
-    if ToggleBtn then
-        ToggleBtn.MouseButton1Click:Connect(function()
-            -- Switch status (On/Off)
-            local newState = not PlayerManager.Enabled
-            PlayerManager:SetState(newState)
-            
-            -- Feedback visual biar makin keren (Natural Human Touch)
-            if newState then
-                ToggleBtn.Text = "ESP: ON"
-                ToggleBtn.TextColor3 = Color3.fromRGB(0, 255, 0) -- Ijo kalau nyala
-            else
-                ToggleBtn.Text = "ESP: OFF"
-                ToggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255) -- Putih kalau mati
+-- Tombol Select All
+selAllBtn.MouseButton1Click:Connect(function()
+    FuncModule.SelectAllActive = not FuncModule.SelectAllActive
+    for _, p in pairs(game.Players:GetPlayers()) do
+        if p ~= game.Players.LocalPlayer then
+            -- Pasang highlight ke semua kalau belum ada
+            if FuncModule.SelectAllActive and not FuncModule.Highlights[p.UserId] then
+                FuncModule:ToggleHighlight(p)
+            elseif not FuncModule.SelectAllActive and FuncModule.Highlights[p.UserId] then
+                FuncModule:ToggleHighlight(p)
             end
-        end)
+        end
     end
+    selAllBtn.Text = FuncModule.SelectAllActive and "DESELECT ALL" or "SELECT ALL"
 end)
 
-if not success then
-    warn("[ERROR] Gagal menyambungkan tombol GUI: " .. tostring(err))
-end
+-- Tombol Close (Hapus Semua)
+closeBtn.MouseButton1Click:Connect(function()
+    -- Bersihin semua highlight sebelum pergi
+    for _, p in pairs(game.Players:GetPlayers()) do
+        if p.Character and p.Character:FindFirstChild("Target_HL") then
+            p.Character.Target_HL:Destroy()
+        end
+    end
+    sg:Destroy()
+    print("ESP Closed Permanently.")
+end)
 
-print("[SYSTEM] Semua sistem berhasil dimuat dan terhubung!")
+-- Auto Update kalau ada player join/leave
+game.Players.PlayerAdded:Connect(function()
+    wait(1)
+    FuncModule:RefreshPlayerList(playerList, PlayerManager)
+end)
 
+game.Players.PlayerRemoving:Connect(function()
+    FuncModule:RefreshPlayerList(playerList, PlayerManager)
+end)
