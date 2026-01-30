@@ -7,3 +7,5 @@ is a GUI or base of a script, without this we can't see anything as if nothing i
 This is to count the number of players to put in the highlight and it can auto update if there is a new one.
 ## Loader
 This is an important part to shorten to make it simpler.
+
+
