@@ -1,94 +1,98 @@
--- [[ GEMINI HITBOX V1 - BYPASS EDITION ]] --
+-- [[ FILE 2: HITBOX LOGIC & SETTING ]] --
+-- Script ini berisi logika bypass dan distance check
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local LocalPlayer = Players.LocalPlayer
 
--- 1. Setup GUI (Elegant Black)
-local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "GeminiBypassGUI"
-screenGui.ResetOnSpawn = false
-screenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+-- 1. Cari GUI yang sudah dibuat oleh File 1
+local playerGui = LocalPlayer:WaitForChild("PlayerGui")
+local uiInterface = playerGui:WaitForChild("GeminiInterface", 5)
 
-local mainFrame = Instance.new("Frame")
-mainFrame.Size = UDim2.new(0, 180, 0, 110)
-mainFrame.Position = UDim2.new(0.5, -90, 0.5, -55)
-mainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
-mainFrame.BorderSizePixel = 0
-mainFrame.Active = true
-mainFrame.Draggable = true
-mainFrame.Parent = screenGui
+if not uiInterface then
+    warn("GUI Utama tidak ditemukan! Jalankan GuiControl.lua dulu.")
+    return
+end
 
-Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 10)
+local mainFrame = uiInterface:WaitForChild("MainBoard")
+local statusLabel = mainFrame:WaitForChild("StatusText")
+local actionBtn = mainFrame:WaitForChild("InjectButton")
 
--- 2. "Power By: Gemini" (RGB Effect)
-local credit = Instance.new("TextLabel")
-credit.Size = UDim2.new(0, 100, 0, 20)
-credit.Position = UDim2.new(1, -105, 0, 5)
-credit.Text = "Power By: Gemini"
-credit.TextSize = 10
-credit.Font = Enum.Font.GothamBold
-credit.BackgroundTransparency = 1
-credit.Parent = mainFrame
+-- 2. Update Tampilan Jadi "Ready"
+statusLabel.Text = "SYSTEM READY"
+statusLabel.TextColor3 = Color3.fromRGB(0, 255, 100) -- Hijau Neon
 
-spawn(function()
-    local counter = 0
-    while wait() do
-        counter = counter + 0.01
-        credit.TextColor3 = Color3.fromHSV(counter % 1, 0.7, 1)
+actionBtn.Text = "HITBOX: OFF"
+actionBtn.BackgroundColor3 = Color3.fromRGB(150, 0, 0) -- Merah
+actionBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+-- 3. Variabel Logika
+local isActive = false
+local reachDistance = 25 -- Jarak efektif (Studs)
+local headSize = 10      -- Ukuran kepala saat aktif
+
+-- 4. Fungsi Reset (Mengembalikan kepala ke normal)
+local function resetHeads()
+    for _, p in pairs(Players:GetPlayers()) do
+        if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("Head") then
+            p.Character.Head.Size = Vector3.new(2, 1, 1) -- Ukuran default Roblox
+            p.Character.Head.Transparency = 0
+            p.Character.Head.CanCollide = true
+        end
     end
-end)
+end
 
--- 3. Tombol Hitbox
-local hbBtn = Instance.new("TextButton")
-hbBtn.Size = UDim2.new(0.85, 0, 0, 45)
-hbBtn.Position = UDim2.new(0.075, 0, 0.45, 0)
-hbBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-hbBtn.Text = "Hitbox: OFF"
-hbBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-hbBtn.Font = Enum.Font.GothamBold
-hbBtn.TextSize = 16
-hbBtn.Parent = mainFrame
-
-Instance.new("UICorner", hbBtn).CornerRadius = UDim.new(0, 8)
-
--- 4. Logic Bypass V1
-local _G.HitboxEnabled = false
-local _G.HitboxSize = 10 -- Ukuran besar (Bisa kamu ubah)
-
-hbBtn.MouseButton1Click:Connect(function()
-    _G.HitboxEnabled = not _G.HitboxEnabled
+-- 5. Logic Tombol (Toggle)
+actionBtn.MouseButton1Click:Connect(function()
+    isActive = not isActive
     
-    if _G.HitboxEnabled then
-        hbBtn.Text = "Hitbox: ON"
-        hbBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
-        hbBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    if isActive then
+        actionBtn.Text = "HITBOX: ON"
+        actionBtn.BackgroundColor3 = Color3.fromRGB(0, 180, 0) -- Hijau
+        statusLabel.Text = "DISTANCE CHECK: ACTIVE"
+        statusLabel.TextColor3 = Color3.fromRGB(0, 255, 255) -- Cyan
     else
-        hbBtn.Text = "Hitbox: OFF"
-        hbBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-        -- Reset Head ke normal
-        for _, p in pairs(Players:GetPlayers()) do
-            if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("Head") then
-                p.Character.Head.Size = Vector3.new(2, 1, 1)
-                p.Character.Head.Transparency = 0
-            end
-        end
+        actionBtn.Text = "HITBOX: OFF"
+        actionBtn.BackgroundColor3 = Color3.fromRGB(150, 0, 0) -- Merah
+        statusLabel.Text = "SYSTEM READY"
+        statusLabel.TextColor3 = Color3.fromRGB(0, 255, 100)
+        resetHeads() -- Reset saat dimatikan
     end
 end)
 
--- Loop Bypass (Berjalan di RenderStepped agar lebih cepat dari script Anti-Cheat)
+-- 6. Loop Utama (Jantung Script)
 RunService.RenderStepped:Connect(function()
-    if _G.HitboxEnabled then
+    if isActive then
         for _, p in pairs(Players:GetPlayers()) do
-            if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("Head") then
-                local head = p.Character.Head
-                -- Bypass V1: Mengunci size & menonaktifkan benturan fisik agar tidak terdeteksi 'Illegal Movement'
-                head.Size = Vector3.new(_G.HitboxSize, _G.HitboxSize, _G.HitboxSize)
-                head.Transparency = 0.6
-                head.CanCollide = false
-                head.Massless = true -- Menghilangkan berat part agar tidak merusak gravitasi
+            -- Cek validitas karakter musuh
+            if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("Head") and p.Character:FindFirstChild("HumanoidRootPart") then
+                
+                local myRoot = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                if myRoot then
+                    -- Hitung Jarak
+                    local dist = (myRoot.Position - p.Character.HumanoidRootPart.Position).Magnitude
+                    
+                    if dist <= reachDistance then
+                        -- Jika DEKAT: Perbesar
+                        p.Character.Head.Size = Vector3.new(headSize, headSize, headSize)
+                        p.Character.Head.Transparency = 0.6
+                        p.Character.Head.CanCollide = false
+                    else
+                        -- Jika JAUH: Normalkan
+                        p.Character.Head.Size = Vector3.new(2, 1, 1)
+                        p.Character.Head.Transparency = 0
+                        p.Character.Head.CanCollide = true
+                    end
+                end
             end
         end
     end
 end)
 
+-- Reset jika pemain mati/respawn agar tidak nge-bug
+LocalPlayer.CharacterAdded:Connect(function()
+    isActive = false
+    actionBtn.Text = "HITBOX: OFF"
+    actionBtn.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
+    resetHeads()
+end)
