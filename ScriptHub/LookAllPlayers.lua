@@ -1,65 +1,106 @@
--- 1. Membuat GUI Utama
+-- 1. Setup Utama (Elegant Black Theme)
 local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "DaftarPemainGUI"
+screenGui.Name = "ElegantPlayerList"
 screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 
--- 2. Membuat Frame (Kotak Utama)
-local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 200, 0, 300)
-frame.Position = UDim2.new(0.5, -100, 0.5, -150)
-frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-frame.BorderSizePixel = 2
-frame.Parent = screenGui
+-- 2. Frame Utama
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0, 250, 0, 350)
+mainFrame.Position = UDim2.new(0.5, -125, 0.5, -175)
+mainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15) -- Hitam Pekat
+mainFrame.BorderSizePixel = 0
+mainFrame.Active = true
+mainFrame.Draggable = true -- Biar bisa digeser
+mainFrame.Parent = screenGui
 
--- 3. Membuat Judul
+-- Efek Sudut Melengkung (Optional tapi bikin elegan)
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 10)
+corner.Parent = mainFrame
+
+-- 3. Judul Atas
 local title = Instance.new("TextLabel")
-title.Size = UDim2.new(1, 0, 0, 30)
-title.Text = "PLAYER LIST"
+title.Size = UDim2.new(1, 0, 0, 40)
+title.Text = "PREMIUM PLAYER LIST"
 title.TextColor3 = Color3.fromRGB(255, 255, 255)
-title.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-title.Parent = frame
+title.Font = Enum.Font.GothamBold
+title.TextSize = 14
+title.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+title.Parent = mainFrame
 
--- 4. Membuat ScrollingFrame (Biar kalau rame bisa di-scroll)
+local titleCorner = Instance.new("UICorner")
+titleCorner.CornerRadius = UDim.new(0, 10)
+titleCorner.Parent = title
+
+-- 4. Scrolling Frame
 local scrollFrame = Instance.new("ScrollingFrame")
-scrollFrame.Size = UDim2.new(1, 0, 1, -30)
-scrollFrame.Position = UDim2.new(0, 0, 0, 30)
+scrollFrame.Size = UDim2.new(1, -20, 1, -60)
+scrollFrame.Position = UDim2.new(0, 10, 0, 50)
 scrollFrame.BackgroundTransparency = 1
-scrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0) -- Akan otomatis bertambah
-scrollFrame.Parent = frame
+scrollFrame.ScrollBarThickness = 2
+scrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+scrollFrame.Parent = mainFrame
 
--- 5. Menambahkan UI List Layout (Agar nama otomatis tersusun rapi)
 local layout = Instance.new("UIListLayout")
 layout.Parent = scrollFrame
-layout.SortOrder = Enum.SortOrder.LayoutOrder
+layout.Padding = UDim.new(0, 5)
 
--- Fungsi untuk memperbarui daftar pemain
+-- Fungsi Update List
 local function updateList()
-    -- Hapus daftar lama
     for _, child in pairs(scrollFrame:GetChildren()) do
-        if child:IsA("TextLabel") then
-            child:Destroy()
-        end
+        if child:IsA("Frame") then child:Destroy() end
     end
     
-    -- Ambil semua pemain dan masukkan ke list
     for _, player in pairs(game.Players:GetPlayers()) do
-        local playerLabel = Instance.new("TextLabel")
-        playerLabel.Size = UDim2.new(1, 0, 0, 25)
-        playerLabel.Text = player.Name
-        playerLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-        playerLabel.BackgroundTransparency = 0.8
-        playerLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-        playerLabel.Parent = scrollFrame
+        -- Baris Pemain
+        local row = Instance.new("Frame")
+        row.Size = UDim2.new(1, 0, 0, 35)
+        row.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+        row.BorderSizePixel = 0
+        row.Parent = scrollFrame
+        
+        local rowCorner = Instance.new("UICorner")
+        rowCorner.CornerRadius = UDim.new(0, 5)
+        rowCorner.Parent = row
+
+        -- Nama Pemain
+        local nameLabel = Instance.new("TextLabel")
+        nameLabel.Size = UDim2.new(0.7, -10, 1, 0)
+        nameLabel.Position = UDim2.new(0, 10, 0, 0)
+        nameLabel.Text = player.Name
+        nameLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+        nameLabel.TextXAlignment = Enum.TextXAlignment.Left
+        nameLabel.BackgroundTransparency = 1
+        nameLabel.Font = Enum.Font.Gotham
+        nameLabel.Parent = row
+
+        -- Tombol Kick
+        local kickBtn = Instance.new("TextButton")
+        kickBtn.Size = UDim2.new(0.3, -5, 0.8, 0)
+        kickBtn.Position = UDim2.new(0.7, 0, 0.1, 0)
+        kickBtn.BackgroundColor3 = Color3.fromRGB(150, 0, 0) -- Merah Gelap
+        kickBtn.Text = "KICK"
+        kickBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+        kickBtn.Font = Enum.Font.GothamBold
+        kickBtn.TextSize = 10
+        kickBtn.Parent = row
+
+        local btnCorner = Instance.new("UICorner")
+        btnCorner.CornerRadius = UDim.new(0, 4)
+        btnCorner.Parent = kickBtn
+
+        -- Fungsi Klik Kick
+        kickBtn.MouseButton1Click:Connect(function()
+            kickBtn.Text = "BERHASIL"
+            kickBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 0) -- Berubah Hijau
+            wait(1)
+            kickBtn.Text = "KICK"
+            kickBtn.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
+        end)
     end
-    
-    -- Sesuaikan ukuran scroll otomatis
     scrollFrame.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y)
 end
 
--- Update list saat ada yang masuk atau keluar
 game.Players.PlayerAdded:Connect(updateList)
 game.Players.PlayerRemoving:Connect(updateList)
-
--- Jalankan fungsi pertama kali
 updateList()
-
