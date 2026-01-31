@@ -103,7 +103,7 @@ spawn(function()
     -- GANTI LINK DI BAWAH DENGAN LINK RAW FILE 'HitboxSetting.lua' KAMU!
     
     local success, err = pcall(function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/USERNAME/REPO/main/HitboxSetting.lua"))()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/HaZcK/LoadstringHub/refs/heads/main/ScriptHub/Hitbox/HitboxSetting.lua"))()
     end)
 
     if not success then
